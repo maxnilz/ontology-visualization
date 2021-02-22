@@ -2,26 +2,35 @@
 
 * Example
 #+BEGIN_SRC bash
-  ./ontology_viz.py -o test.dot test.ttl -O ontology.ttl
+  python3 -m venv .env
+  pip install -r requirements.txt
+  source .env/bin/activate
+  # visualize individual-contained ontology
+  python ontology_viz.py -o test.dot test.ttl -O ontology.ttl
   dot -Tpng -o test.png test.dot
+  # visualize individual-less ontology
+  python ontology_viz.py -o ppdm.dot ppdm.ttl -O ppdm.ttl -C config.json
+  dot -Tsvg -o ppdm.svg ppdm.dot
 #+END_SRC
 
 - Use ~-o~ to indicate the path of output file
 - Use ~-O~ to indicate the input ontology (Optional).
 - Use ~-C~ to indicate the configuration file (Optional).
-  - ~max_label_length~: config the max length of labels. If the text exceeds the length, exceeded part will be replaced with "...". Default value is ~0~.
+  - ~max_label_length~: config the max length of labels. If the text(except leaf literals) exceeds the length, exceeded part will be replaced with "...". Default value is ~0~.
   - ~blacklist~: config the predicate that you don't want to see in the graph.
   - ~class_inference_in_object~: config the predicate that can inference the object is a ~Class~, even if the class doesn't defined in the ontology.
   - ~label_property~: config the predicate that used for labeling nodes, if such a label exists, it will display inside the node.
   - ~tooltip_property~: config the predicate that contains the tooltip texts.
   - ~bnode_regex~: a list of regexes, if an uri matches, then it will be dispaly as a blank node without its uri nor label. It can be useful if you have a lot of reifications.
+  - ~namespaces~: a list of none standard namespaces, if the IRI prefixed with any given namespace, trim the namespace prefix and display the short text.
   - ~colors~: config the colors of nodes
-    - ~class~, ~literal~, ~instance~ can accept HEX value(e.g. ~"#ff0000"~ ), MATLAB style(e.g. ~"r"~ ), and color name (e.g. ~"red"~ ).
+    - ~class~, ~literal~, ~instance~, ~prop~ can accept HEX value(e.g. ~"#ff0000"~ ), MATLAB style(e.g. ~"r"~ ), and color name (e.g. ~"red"~ ).
     #+BEGIN_SRC json
       "colors": {
         "class": "#ff0000",
         "literal": "r",
         "instance": "red",
+        "prop": "#82B366",
       }
     #+END_SRC
     - ~instance~ can also accept a dict value to specify the color of each class instance. And use ~"default"~ to to set color for undefined instances.

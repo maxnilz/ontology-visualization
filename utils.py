@@ -10,6 +10,7 @@ class Colors:
     cls = '#1f77b4'
     lit = '#ff7f0e'
     ins = '#e377c2'
+    prop = '#82B366'
     filled = True
 
 
@@ -23,6 +24,7 @@ class Config:
         self.tooltip_property = set()
         self.bnode_regex = list()
         self.colors = Colors()
+        self.ex_ns = dict()
         if config_file:
             self.read_config_file(config_file)
 
@@ -43,12 +45,20 @@ class Config:
             self.colors.cls = config_color.parse(colors.get('class', self.colors.cls), self.colors.cls)
             self.colors.lit = config_color.parse(colors.get('literal', self.colors.lit), self.colors.lit)
             self.colors.ins = config_color.parse(colors.get('instance', self.colors.ins))
+            self.colors.prop = config_color.parse(colors.get('prop', self.colors.prop))
             self.colors.filled = colors.get('filled', True)
+        if 'namespaces' in config:
+            self.ex_ns = config['namespaces']
 
     def get_ins_color(self, cls):
         if isinstance(self.colors.ins, dict):
             return self.colors.ins.get(str(cls), self.colors.ins['default'])
         return self.colors.ins
+
+    def get_prop_color(self, prop):
+        if isinstance(self.colors.prop, dict):
+            return self.colors.prop.get(str(prop), self.colors.prop['default'])
+        return self.colors.prop
 
     def get_cls_color(self, cls):
         if isinstance(self.colors.cls, dict):

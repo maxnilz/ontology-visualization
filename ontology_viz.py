@@ -9,7 +9,6 @@ from namespace import NamespaceManager, split_uri
 from graph_element import Node
 from utils import Config, SCHEMA
 
-
 query_classes = prepareQuery("""
 SELECT ?s {
   { ?s a owl:Class } UNION
@@ -20,22 +19,36 @@ SELECT ?s {
   { ?s a ?property } UNION { ?s owl:subPropertyOf+ ?o . ?o a ?property }
   FILTER ( ?property IN ( owl:DatatypeProperty, owl:ObjectProperty ) )
 } """, initNs={'owl': OWL})
+query_domains = prepareQuery("""
+SELECT ?s ?property {
+  { ?s rdfs:domain ?property }
+  FILTER EXISTS { ?property rdf:type owl:Class }
+} """, initNs={'owl': OWL})
+query_ranges = prepareQuery("""
+SELECT ?s ?property {
+  { ?s rdfs:range ?property }
+  FILTER EXISTS { ?property rdf:type owl:Class }
+} """, initNs={'owl': OWL})
+
 common_ns = set(map(lambda ns: ns.uri, (RDF, RDFS, SKOS, SCHEMA, XSD, DOAP, FOAF)))
 
 
 class OntologyGraph:
     def __init__(self, files, config, format='ttl', ontology=None):
-        self.g = Graph()
-        self.g.namespace_manager = NamespaceManager(self.g)
         if ontology is not None:
             g = Graph()
             self._load_files(g, ontology)
             self.ontology_defined = True
             self.ontology_cls = {cls for cls, in g.query(query_classes)}
             self.ontology_pty = {pty for pty, in g.query(query_properties)}
+            self.ontology_dms = {s: p for (s, p) in g.query(query_domains)}
+            self.ontology_rgs = {s: p for (s, p) in g.query(query_ranges)}
         else:
             self.ontology_defined = False
         self.config = config
+        self.g = Graph()
+        self.namespace_manager = NamespaceManager(self.g, self.config.ex_ns)
+        self.g.namespace_manager = self.namespace_manager
         self._load_files(self.g, files, format)
         self.classes = set()
         self.instances = dict()
@@ -43,6 +56,7 @@ class OntologyGraph:
         self.labels = dict()
         self.tooltips = defaultdict(list)
         self.literals = set()
+        self.properties = set()
         self._read_graph()
 
     @staticmethod
@@ -56,9 +70,21 @@ class OntologyGraph:
         for s, p, o in self.g:
             if any(uri in self.config.blacklist for uri in (s, p, o)):
                 continue
+            if p == RDFS.domain or p == RDFS.range:
+                continue
             if p == RDF.type:
                 if o == OWL.Class:
                     self.add_to_classes(s)
+                elif o == OWL.DatatypeProperty:
+                    od = self.ontology_dms.get(s)
+                    if od:
+                        self.properties.add(s)
+                        self.add_edge((od, self.namespace_manager.namespaceof(s).property_, s))
+                elif o == OWL.ObjectProperty:
+                    od = self.ontology_dms.get(s)
+                    or_ = self.ontology_rgs.get(s)
+                    if od is not None and or_ is not None:
+                        self.add_edge((od, s, or_))
                 else:
                     self.instances[s] = o
                     if str(o) not in self.config.colors.ins:
@@ -101,6 +127,8 @@ class OntologyGraph:
         edge_strings = []
         for class_ in self.classes:
             node_strings.append(self._dot_class_node(class_))
+        for property_ in self.properties:
+            node_strings.append(self._dot_property_node(property_))
         for instance, class_ in self.instances.items():
             node_strings.append(self._dot_instance_node(instance, class_))
         for uri, literal in self.literals:
@@ -121,6 +149,10 @@ class OntologyGraph:
     def _dot_instance_node(self, instance, class_=None):
         color = node_color(self.config.get_ins_color(class_))
         return self._dot_node(instance, color)
+
+    def _dot_property_node(self, property_, class_=None):
+        color = node_color(self.config.get_prop_color(class_))
+        return self._dot_node(property_, color)
 
     def _dot_node(self, uri, attrs):
         node = Node(uri, attrs)
@@ -186,7 +218,7 @@ class OntologyGraph:
             prefix, _, name = self.g.compute_qname(uri)
             label = '{}:{}'.format(prefix, name) if prefix else name
         if length and len(label) > length:
-            label = label[:length-3] + '...'
+            label = label[:length - 3] + '...'
         return label
 
 
@@ -202,7 +234,7 @@ def text_justify(words, max_width):
     res, cur, num_of_letters = [], [], 0
     max_ = 0
     for w in words:
-        if num_of_letters + len(w) + len(cur) > max_width:
+        if num_of_letters + len(w) + len(cur) > max_width and len(cur) > 0:
             res.append(' '.join(cur))
             max_ = max(max_, num_of_letters)
             cur, num_of_letters = [], 0
@@ -219,7 +251,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output', dest='out', default='ontology.dot',
                         help='Location of output dot file.')
     parser.add_argument('-O', '--ontology', dest='ontology', default=None,
-                        help='Provided ontology for the graph.')
+                        help='Provided individual-less ontology for the graph.')
     parser.add_argument('-C', '--config', dest='config', default=None,
                         help='Provided configuration.')
     args = parser.parse_args()

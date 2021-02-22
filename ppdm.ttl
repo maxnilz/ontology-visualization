@@ -1,0 +1,187 @@
+@prefix : <http://www.tespkg.in/onto/ppdm#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.tespkg.in/onto/ppdm> .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://www.tespkg.in/onto/ppdm#documentOf
+:documentOf rdf:type owl:ObjectProperty ;
+            rdfs:domain :SeismicDocument ;
+            rdfs:range :SeismicSurvey .
+
+
+###  http://www.tespkg.in/onto/ppdm#forBasin
+:forBasin rdf:type owl:ObjectProperty ;
+          rdfs:domain :Project ;
+          rdfs:range :Basin .
+
+
+###  http://www.tespkg.in/onto/ppdm#forField
+:forField rdf:type owl:ObjectProperty ;
+          rdfs:domain :Project ;
+          rdfs:range :Field .
+
+
+###  http://www.tespkg.in/onto/ppdm#forGeoShape
+:forGeoShape rdf:type owl:ObjectProperty ;
+             rdfs:domain :Project ;
+             rdfs:range :GeoShape .
+
+
+###  http://www.tespkg.in/onto/ppdm#logOf
+:logOf rdf:type owl:ObjectProperty ;
+       rdfs:domain :Log ;
+       rdfs:range :Well .
+
+
+###  http://www.tespkg.in/onto/ppdm#surveyOf
+:surveyOf rdf:type owl:ObjectProperty ;
+          rdfs:domain :SeismicSurvey ;
+          rdfs:range :Project .
+
+
+###  http://www.tespkg.in/onto/ppdm#wellOf
+:wellOf rdf:type owl:ObjectProperty ;
+        rdfs:domain :Well ;
+        rdfs:range :Project .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://www.tespkg.in/onto/ppdm#basinName
+:basinName rdf:type owl:DatatypeProperty ;
+           rdfs:domain :Basin ;
+           rdfs:isDefinedBy "FUSEIM_BASIN.basin_name" .
+
+
+###  http://www.tespkg.in/onto/ppdm#documentTitle
+:documentTitle rdf:type owl:DatatypeProperty ;
+               rdfs:domain :SeismicDocument ;
+               rdfs:isDefinedBy "FUSEIM_SEIS_DOCUMENT.title" .
+
+
+###  http://www.tespkg.in/onto/ppdm#fieldName
+:fieldName rdf:type owl:DatatypeProperty ;
+           rdfs:domain :Field ;
+           rdfs:isDefinedBy "FUSEIM_FIELD.field_name" .
+
+
+###  http://www.tespkg.in/onto/ppdm#logOperator
+:logOperator rdf:type owl:DatatypeProperty ;
+             rdfs:domain :Log ;
+             rdfs:isDefinedBy "FUSEIM_WELL_LOG:operator" .
+
+
+###  http://www.tespkg.in/onto/ppdm#logTitle
+:logTitle rdf:type owl:DatatypeProperty ;
+          rdfs:domain :Log ;
+          rdfs:isDefinedBy "FUSEIM_WELL_LOG.log_title" .
+
+
+###  http://www.tespkg.in/onto/ppdm#projectMaxX
+:projectMaxX rdf:type owl:DatatypeProperty ;
+             rdfs:domain :Project ;
+             rdfs:isDefinedBy "FUESIM_PROJECT.max_x" .
+
+
+###  http://www.tespkg.in/onto/ppdm#projectMaxY
+:projectMaxY rdf:type owl:DatatypeProperty ;
+             rdfs:domain :Project ;
+             rdfs:isDefinedBy "FUSEIM_PROJECT.min_y" .
+
+
+###  http://www.tespkg.in/onto/ppdm#projectMinX
+:projectMinX rdf:type owl:DatatypeProperty ;
+             rdfs:domain :Project ;
+             rdfs:isDefinedBy "FUSEIM_PROJECT.min_x" .
+
+
+###  http://www.tespkg.in/onto/ppdm#projectMinY
+:projectMinY rdf:type owl:DatatypeProperty ;
+             rdfs:domain :Project ;
+             rdfs:isDefinedBy "FUSEIM_PROJECT.min_y" .
+
+
+###  http://www.tespkg.in/onto/ppdm#projectName
+:projectName rdf:type owl:DatatypeProperty ;
+             rdfs:domain :Project ;
+             rdfs:isDefinedBy "FUSEIM_PROJECT.project_name" .
+
+
+###  http://www.tespkg.in/onto/ppdm#surveyName
+:surveyName rdf:type owl:DatatypeProperty ;
+            rdfs:domain :SeismicSurvey ;
+            rdfs:isDefinedBy "FUSEIM_SEIS_SURVEY:survey_name" .
+
+
+###  http://www.tespkg.in/onto/ppdm#wellName
+:wellName rdf:type owl:DatatypeProperty ;
+          rdfs:domain :Well ;
+          rdfs:isDefinedBy "FUSEIM_WELL.well_name" .
+
+
+###  http://www.tespkg.in/onto/ppdm#wellSurfaceX
+:wellSurfaceX rdf:type owl:DatatypeProperty ;
+              rdfs:domain :Well ;
+              rdfs:isDefinedBy "FUSEIM_WELL.surface_x" .
+
+
+###  http://www.tespkg.in/onto/ppdm#wellSurfaceY
+:wellSurfaceY rdf:type owl:DatatypeProperty ;
+              rdfs:domain :Well ;
+              rdfs:isDefinedBy "FUSEIM_WELL.surface_y" .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://www.tespkg.in/onto/ppdm#Basin
+:Basin rdf:type owl:Class ;
+       rdfs:isDefinedBy "FUSEIM_BASIN" .
+
+
+###  http://www.tespkg.in/onto/ppdm#Field
+:Field rdf:type owl:Class ;
+       rdfs:isDefinedBy "FUSEIM_FIELD" .
+
+
+###  http://www.tespkg.in/onto/ppdm#GeoShape
+:GeoShape rdf:type owl:Class .
+
+
+###  http://www.tespkg.in/onto/ppdm#Log
+:Log rdf:type owl:Class ;
+     rdfs:isDefinedBy "FUSEIM_WELL_LOG" .
+
+
+###  http://www.tespkg.in/onto/ppdm#Project
+:Project rdf:type owl:Class ;
+         rdfs:isDefinedBy "FUSEIM_PROJECT" .
+
+
+###  http://www.tespkg.in/onto/ppdm#SeismicDocument
+:SeismicDocument rdf:type owl:Class ;
+                 rdfs:isDefinedBy "FUSEIM_SEIS_DOCUMENT" .
+
+
+###  http://www.tespkg.in/onto/ppdm#SeismicSurvey
+:SeismicSurvey rdf:type owl:Class ;
+               rdfs:isDefinedBy "FUSEIM_SEIS_SURVEY" .
+
+
+###  http://www.tespkg.in/onto/ppdm#Well
+:Well rdf:type owl:Class ;
+      rdfs:isDefinedBy "FUSEIM_WELL" .
+
+
+###  Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi
