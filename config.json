@@ -16,10 +16,14 @@
   "property_inference_in_object": [
     "http://www.w3.org/2002/07/owl#subPropertyOf"
   ],
+  "namespaces": {
+    "tes": "http://www.tespkg.in/onto#"
+  },
   "colors": {
     "class": "#1f77b4",
-    "literal": "#ff7f0e",
+    "literal": "#F5F5F5",
     "instance": "#e377c2",
-    "filled": false
+    "prop": "#82B366",
+    "filled": true
   }
 }

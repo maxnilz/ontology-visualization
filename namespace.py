@@ -4,7 +4,6 @@ from urllib.parse import urljoin, urldefrag
 from urllib.request import pathname2url
 from rdflib.term import URIRef, Variable, _XSD_PFX, _is_valid_uri
 
-
 __all__ = [
     'is_ncname', 'split_uri', 'Namespace',
     'ClosedNamespace', 'NamespaceManager',
@@ -42,7 +41,6 @@ class Namespace(str):
 
 
 class URIPattern(str):
-
     __doc__ = """
     Utility class for creating URIs according to some pattern
     This supports either new style formatting with .format
@@ -113,6 +111,7 @@ class _RDFNamespace(ClosedNamespace):
     """
     Closed namespace for RDF terms
     """
+
     def __init__(self):
         super(_RDFNamespace, self).__init__(
             URIRef("http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
@@ -146,7 +145,6 @@ class _RDFNamespace(ClosedNamespace):
 
 
 RDF = _RDFNamespace()
-
 
 RDFS = ClosedNamespace(
     uri=URIRef("http://www.w3.org/2000/01/rdf-schema#"),
@@ -199,7 +197,8 @@ class NamespaceManager(object):
         >>>
 
     """
-    def __init__(self, graph):
+
+    def __init__(self, graph, ex_ns):
         self.graph = graph
         self.__cache = {}
         self.__cache_strict = {}
@@ -212,6 +211,8 @@ class NamespaceManager(object):
         self.bind("rdf", RDF)
         self.bind("rdfs", RDFS)
         self.bind("xsd", XSD)
+        for (label, ns) in ex_ns.items():
+            self.bind(label, Namespace(ns))
 
     def reset(self):
         self.__cache = {}
@@ -222,6 +223,7 @@ class NamespaceManager(object):
 
     def __get_store(self):
         return self.graph.store
+
     store = property(__get_store)
 
     def qname(self, uri):
@@ -321,20 +323,20 @@ class NamespaceManager(object):
                                'because there is no valid way to shorten {uri}'.format(uri))
                     raise ValueError(message)
                     # omitted for strict since NCNames cannot be empty
-                    #namespace = URIRef(uri)
-                    #prefix = self.store.prefix(namespace)
-                    #if not prefix:
-                        #raise e
+                    # namespace = URIRef(uri)
+                    # prefix = self.store.prefix(namespace)
+                    # if not prefix:
+                    # raise e
 
                 if namespace not in self.__strie:
                     insert_strie(self.__strie, self.__trie, namespace)
 
                 # omitted for strict
-                #if self.__strie[namespace]:
-                    #pl_namespace = get_longest_namespace(self.__strie[namespace], uri)
-                    #if pl_namespace is not None:
-                        #namespace = pl_namespace
-                        #name = uri[len(namespace):]
+                # if self.__strie[namespace]:
+                # pl_namespace = get_longest_namespace(self.__strie[namespace], uri)
+                # if pl_namespace is not None:
+                # namespace = pl_namespace
+                # name = uri[len(namespace):]
 
                 namespace = URIRef(namespace)
                 prefix = self.store.prefix(namespace)  # warning multiple prefixes problem
@@ -428,6 +430,13 @@ class NamespaceManager(object):
                 result = "%s#" % result
         return URIRef(result)
 
+    def namespaceof(self, uri):
+        result = self.absolutize(uri)
+        if result[-1] != "#":
+            result = "%s#" % result
+        return Namespace(result)
+
+
 # From: http://www.w3.org/TR/REC-xml#NT-CombiningChar
 #
 # * Name start characters must have one of the categories Ll, Lu, Lo,
@@ -517,6 +526,7 @@ def split_uri(uri, split_start=SPLIT_START_CATEGORIES):
             break
     raise ValueError("Can't split '{}'".format(uri))
 
+
 def insert_trie(trie, value):  # aka get_subtrie_or_insert
     """ Insert a value into the trie if it is not already contained in the trie.
         Return the subtree for the value regardless of whether it is a new value
@@ -537,9 +547,11 @@ def insert_trie(trie, value):  # aka get_subtrie_or_insert
         trie[value] = {}
     return trie[value]
 
+
 def insert_strie(strie, trie, value):
     if value not in strie:
         strie[value] = insert_trie(trie, value)
+
 
 def get_longest_namespace(trie, value):
     for key in trie:
